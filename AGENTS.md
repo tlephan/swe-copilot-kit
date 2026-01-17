@@ -1,4 +1,4 @@
-# GitHub Copilot Agent Instructions
+# Agent Instructions
 
 ## General Agent Behavior
 
@@ -174,24 +174,5 @@ Refactoring checklist:
 - **Domain expertise**: Leverage project-specific knowledge over time
 - **Error correction**: Learn from mistakes and update guidance
 - **Best practice evolution**: Stay current with evolving standards and tools
-
----
-
-## Quick Reference Commands
-
-### Analysis Tasks
-- `@workspace Analyze this codebase for security vulnerabilities`
-- `@workspace Review recent changes for potential issues`
-- `@workspace Explain the architecture of [component/module]`
-
-### Generation Tasks
-- `@workspace Generate comprehensive tests for [function/class]`
-- `@workspace Create documentation for [API/feature]`
-- `@workspace Refactor [code block] following best practices`
-
-### Investigation Tasks
-- `@workspace Debug why [specific behavior] is occurring`
-- `@workspace Trace the data flow for [feature/operation]`
-- `@workspace Find the root cause of [error/issue]`
 
 Remember: Always provide context-specific, actionable guidance that helps users understand both the solution and the reasoning behind it.
