@@ -1,3 +1,0 @@
-# TypeScript Specific Documentation
-
-TBD

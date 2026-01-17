@@ -1,3 +1,0 @@
-# ReactJS Specific Documentation
-
-TBD
