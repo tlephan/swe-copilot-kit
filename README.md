@@ -1,6 +1,6 @@
-# GitHub Copilot
+# SWE Copilot Kit
 
-This repository serves as a comprehensive knowledge base and playbook for GitHub Copilot, containing curated instructions, prompts, and best practices for AI-powered development workflows. It provides structured templates and guidelines to help developers and AI agents work more effectively with GitHub Copilot in production environments.
+This repository serves as a comprehensive tool kit for GitHub Copilot, containing curated instructions, prompts, and best practices for AI-powered development workflows. It provides structured templates and guidelines to help developers and AI agents work more effectively with GitHub Copilot in production environments.
 
 ## Architecture Overview
 
