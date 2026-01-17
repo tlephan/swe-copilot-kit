@@ -1,6 +1,5 @@
 ---
-mode: agent
-model: Claude Sonnet 4 (copilot)
+name: Run Prompt Flow
 description: Execute a series of prompts in a defined flow to achieve a specific outcome.
 ---
 
