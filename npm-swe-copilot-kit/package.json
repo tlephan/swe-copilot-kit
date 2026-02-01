@@ -1,6 +1,6 @@
 {
     "name": "swe-copilot-kit",
-    "version": "0.0.1-beta.1",
+    "version": "0.0.1-beta.2",
     "description": "CLI toolkit to initialize GitHub Copilot prompts and agents in your project",
     "main": "dist/index.js",
     "bin": {
