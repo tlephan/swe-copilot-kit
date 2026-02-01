@@ -1,6 +1,8 @@
 # SWE Copilot Kit
 
 [![npm version](https://badge.fury.io/js/swe-copilot-kit.svg)](https://badge.fury.io/js/swe-copilot-kit)
+[![npm-ci](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-ci.yml/badge.svg)](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-ci.yml)
+[![npm-publish](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-publish.yml)
 
 This repository serves as a comprehensive tool kit for GitHub Copilot, containing curated instructions, prompts, and best practices for AI-powered development workflows. It provides structured templates and guidelines to help developers and AI agents work more effectively with GitHub Copilot in development environments.
 
