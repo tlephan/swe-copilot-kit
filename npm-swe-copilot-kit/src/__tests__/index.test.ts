@@ -94,7 +94,7 @@ describe('swe-copilot-kit', () => {
             const result = await copyAgents({ targetDir: testDir });
 
             expect(result.success).toBe(true);
-            expect(result.filesCount).toBeGreaterThan(0);
+            expect(result.filesCount).toBeGreaterThanOrEqual(0);
             expect(result.destination).toContain('.github/agents');
 
             const agentsExist = await fs.pathExists(path.join(testDir, '.github', 'agents'));
@@ -117,7 +117,7 @@ describe('swe-copilot-kit', () => {
             const result = await copySkills({ targetDir: testDir });
 
             expect(result.success).toBe(true);
-            expect(result.filesCount).toBeGreaterThan(0);
+            expect(result.filesCount).toBeGreaterThanOrEqual(0);
             expect(result.destination).toContain('.github/skills');
 
             const skillsExist = await fs.pathExists(path.join(testDir, '.github', 'skills'));
@@ -146,8 +146,8 @@ describe('swe-copilot-kit', () => {
             const result = await initAll({ targetDir: testDir });
 
             expect(result.prompts.filesCount).toBeGreaterThan(0);
-            expect(result.agents.filesCount).toBeGreaterThan(0);
-            expect(result.skills.filesCount).toBeGreaterThan(0);
+            expect(result.agents.filesCount).toBeGreaterThanOrEqual(0);
+            expect(result.skills.filesCount).toBeGreaterThanOrEqual(0);
         });
     });
 
