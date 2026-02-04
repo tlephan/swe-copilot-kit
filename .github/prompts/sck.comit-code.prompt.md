@@ -1,5 +1,5 @@
 ---
-name: swe.commit-code
+name: sck.commit-code
 description: Commit code changes with a clear and concise message summarizing the modifications made.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: swe.update-toc
+name: sck.update-toc
 description: Update Table of Contents in README.md or markdown document to reflect recent changes.
 ---
 

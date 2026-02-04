@@ -1,5 +1,5 @@
 ---
-name: swe.summarize-logic
+name: sck.summarize-logic
 description: Create clear, concise summaries of code logic, functions, classes, and systems.
 ---
 

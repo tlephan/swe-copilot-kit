@@ -1,5 +1,5 @@
 ---
-name: swe.upgrade-version
+name: sck.upgrade-version
 description: Upgrade the version number in project files such as package.json, pom.xml, pyproject.toml, or similar.
 ---
 

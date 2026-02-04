@@ -1,5 +1,5 @@
 ---
-name: swe.update-changelogs
+name: sck.update-changelogs
 description: Update CHANGELOG.md files to reflect recent changes in the project.
 ---
 
