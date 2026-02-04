@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { copyPrompts, copyAgents, copySkills, listTemplates, CopyResult } from './index';
+import { copyPrompts, copyAgents, copySkills, listTemplates, CopyResult, updateGitignore } from './index';
 
 const packageJson = require('../package.json');
 
@@ -65,6 +65,18 @@ program
             
             if (installSkills) {
                 await runCopy('skills', () => copySkills({ targetDir, force: options.force }));
+            }
+
+            const gitignoreSpinner = ora('Updating .gitignore...').start();
+            try {
+                const updated = await updateGitignore(targetDir);
+                if (updated) {
+                    gitignoreSpinner.succeed('Updated .gitignore');
+                } else {
+                    gitignoreSpinner.info('.gitignore already up to date');
+                }
+            } catch (error) {
+                gitignoreSpinner.fail('Failed to update .gitignore');
             }
 
             console.log();

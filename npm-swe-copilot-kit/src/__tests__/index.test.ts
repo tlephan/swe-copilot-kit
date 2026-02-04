@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll } from '../index';
+import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll, updateGitignore } from '../index';
 
 describe('swe-copilot-kit', () => {
     const testDir = path.join(__dirname, '../../test-output');
@@ -148,6 +148,39 @@ describe('swe-copilot-kit', () => {
             expect(result.prompts.filesCount).toBeGreaterThan(0);
             expect(result.agents.filesCount).toBeGreaterThan(0);
             expect(result.skills.filesCount).toBeGreaterThan(0);
+        });
+    });
+
+    describe('updateGitignore', () => {
+        it('should create .gitignore if it does not exist', async () => {
+            await updateGitignore(testDir);
+            const exists = await fs.pathExists(path.join(testDir, '.gitignore'));
+            expect(exists).toBe(true);
+            const content = await fs.readFile(path.join(testDir, '.gitignore'), 'utf8');
+            expect(content).toContain('# Generated SWE Copilot Kit');
+            expect(content).toContain('.github/agents/swe.*');
+        });
+
+        it('should append to existing .gitignore', async () => {
+            const gitignorePath = path.join(testDir, '.gitignore');
+            await fs.ensureFile(gitignorePath);
+            await fs.writeFile(gitignorePath, 'node_modules\n');
+            
+            await updateGitignore(testDir);
+            
+            const content = await fs.readFile(gitignorePath, 'utf8');
+            expect(content).toContain('node_modules');
+            expect(content).toContain('# Generated SWE Copilot Kit');
+        });
+
+        it('should not duplicate if already exists', async () => {
+            await updateGitignore(testDir);
+            const content1 = await fs.readFile(path.join(testDir, '.gitignore'), 'utf8');
+            
+            await updateGitignore(testDir);
+            const content2 = await fs.readFile(path.join(testDir, '.gitignore'), 'utf8');
+            
+            expect(content1).toEqual(content2);
         });
     });
 });

@@ -104,6 +104,35 @@ export async function listTemplates(): Promise<{ prompts: string[]; agents: stri
     return { prompts, agents, skills };
 }
 
+/**
+ * Update .gitignore to include generated files
+ */
+export async function updateGitignore(targetDir: string): Promise<boolean> {
+    const gitignorePath = path.join(targetDir, '.gitignore');
+    const toIgnore = [
+        '# Generated SWE Copilot Kit',
+        '.github/agents/swe.*',
+        '.github/prompts/swe.*',
+        '.github/skills/swe.*'
+    ];
+
+    try {
+        await fs.ensureFile(gitignorePath);
+        const content = await fs.readFile(gitignorePath, 'utf8');
+        
+        if (!content.includes('# Generated SWE Copilot Kit')) {
+            const prefix = content.endsWith('\n') || content.length === 0 ? '' : '\n';
+            await fs.appendFile(gitignorePath, prefix + toIgnore.join('\n') + '\n');
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Failed to update .gitignore:', error);
+        return false;
+    }
+}
+
 async function copyTemplateDirectory(
     source: string,
     destination: string,
