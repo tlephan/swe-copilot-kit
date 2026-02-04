@@ -34,9 +34,12 @@ This CLI toolkit unpacks pre-configured GitHub Copilot prompts and agents into y
 your-project/
 ├── .github/
 │   ├── prompts/
-│   │   └── *.prompt.md
-│   └── agents/
-│       └── *.agent.md
+│   │   └── swe.*.prompt.md
+│   ├── agents/
+│   │   └── swe.*.agent.md
+│   └── skills/
+│       └── swe.*
+│           └── SKILL.md
 ```
 
 ## Commands
@@ -84,7 +87,7 @@ swe-copilot-kit list
 
 ## Included Templates
 
-TBD
+The package includes a variety of prompts and agents designed to assist with software engineering tasks, such as code committing, code reviewing, and coding assistance.
 
 ## Programmatic Usage
 
@@ -112,16 +115,15 @@ console.log(templates.agents);
 
 After initialization, you can use the prompts and agents with GitHub Copilot:
 
-1. **Prompts**: Reference prompts in Copilot Chat using `#file:.github/prompts/[prompt-name].prompt.md`
+1. **Prompts**: Reference prompts in Copilot Chat using `/prompt <prompt-name>` to get specific assistance.
 2. **Agents**: Agents provide extended capabilities and workflows for Copilot
 
 ## Customization
 
 After initialization, you can customize the prompts and agents to match your project's needs:
 
-1. Edit the `.github/prompts/*.prompt.md` files to adjust prompt behavior
-2. Modify `.github/agents/*.agent.md` files to change agent capabilities
-3. Add new prompts or agents as needed
+1. Edit the `.github/prompts/swe.*.prompt.md` files to adjust prompt behavior
+2. Modify `.github/agents/swe.*.agent.md` files to change agent capabilities
 
 ## Development
 
@@ -143,7 +145,3 @@ npm run dev -- init
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
