@@ -165,8 +165,10 @@ async function copyTemplateDirectory(
             filter: (src) => {
                 // Always allow the root source directory and subdirectories
                 if (fs.lstatSync(src).isDirectory()) return true;
-                // Only allow files that start with 'swe.'
-                return path.basename(src).startsWith('swe.');
+                
+                const basename = path.basename(src);
+                // Allow files that start with 'swe.' or are named 'SKILL.md'
+                return basename.startsWith('swe.') || basename === 'SKILL.md';
             }
         });
 

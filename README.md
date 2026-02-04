@@ -64,21 +64,14 @@ swe-copilot-kit init [options]
 | Option | Description |
 |--------|-------------|
 | `-f, --force` | Overwrite existing files |
-| `-p, --prompts` | Initialize only prompts |
-| `-a, --agents` | Initialize only agents |
-| `--all` | Initialize both prompts and agents (default) |
+| `--claude-code` | Initialize for Claude Code _(Coming soon)_ |
+| `--antigravity` | Initialize for Antigravity _(Coming soon)_ |
 
 **Examples:**
 
 ```bash
 # Initialize everything
 swe-copilot-kit init
-
-# Only initialize prompts
-swe-copilot-kit init --prompts
-
-# Only initialize agents
-swe-copilot-kit init --agents
 
 # Force overwrite existing files
 swe-copilot-kit init --force
