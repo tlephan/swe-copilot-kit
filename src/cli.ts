@@ -9,19 +9,19 @@ const packageJson = require('../package.json');
 
 interface InitOptions {
     force?: boolean;
-    prompts?: boolean;
-    agents?: boolean;
-    skills?: boolean;
-    all?: boolean;
+    claudeCode?: boolean;
+    antigravity?: boolean;
 }
 
 const program = new Command();
+
+
 
 // ASCII Art Banner
 const banner = `
 ${chalk.cyan('╔═══════════════════════════════════════════════╗')}
 ${chalk.cyan('║')}  ${chalk.bold.white('🤖 SWE Copilot Kit')}                           ${chalk.cyan('║')}
-${chalk.cyan('║')}  ${chalk.gray('GitHub Copilot Prompts & Agents Initializer')}  ${chalk.cyan('║')}
+${chalk.cyan('║')}  ${chalk.gray('Copilot Prompts, Agents, Skills Initializer')}  ${chalk.cyan('║')}
 ${chalk.cyan('╚═══════════════════════════════════════════════╝')}
 `;
 
@@ -34,38 +34,30 @@ program
     .command('init')
     .description('Initialize .github/prompts, .github/agents and .github/skills directories')
     .option('-f, --force', 'Overwrite existing files', false)
-    .option('-p, --prompts', 'Initialize only prompts', false)
-    .option('-a, --agents', 'Initialize only agents', false)
-    .option('-s, --skills', 'Initialize only skills', false)
-    .option('--all', 'Initialize prompts, agents and skills (default)', true)
+    .option('--claude-code', 'Initialize for Claude Code (Coming soon)', false)
+    .option('--antigravity', 'Initialize for Antigravity (Coming soon)', false)
     .action(async (options: InitOptions) => {
         console.log(banner);
 
-        const targetDir = process.cwd();
+        if (options.claudeCode) {
+            console.log(chalk.yellow('⚠️  Claude Code support is coming soon!'));
+            return;
+        }
 
-        // Determine what to install
-        // If specific flags are set, use them. If no specific flags, default to all.
-        const specificSelected = options.prompts || options.agents || options.skills;
-        
-        const installPrompts = options.prompts || (!specificSelected && options.all);
-        const installAgents = options.agents || (!specificSelected && options.all);
-        const installSkills = options.skills || (!specificSelected && options.all);
+        if (options.antigravity) {
+            console.log(chalk.yellow('⚠️  Antigravity support is coming soon!'));
+            return;
+        }
+
+        const targetDir = process.cwd();
 
         console.log(chalk.blue('📁 Target directory:'), chalk.white(targetDir));
         console.log();
 
         try {
-            if (installPrompts) {
-                await runCopy('prompts', () => copyPrompts({ targetDir, force: options.force }));
-            }
-
-            if (installAgents) {
-                await runCopy('agents', () => copyAgents({ targetDir, force: options.force }));
-            }
-            
-            if (installSkills) {
-                await runCopy('skills', () => copySkills({ targetDir, force: options.force }));
-            }
+            await runCopy('prompts', () => copyPrompts({ targetDir, force: options.force }));
+            await runCopy('agents', () => copyAgents({ targetDir, force: options.force }));
+            await runCopy('skills', () => copySkills({ targetDir, force: options.force }));
 
             const gitignoreSpinner = ora('Updating .gitignore...').start();
             try {

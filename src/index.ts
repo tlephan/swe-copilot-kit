@@ -34,7 +34,10 @@ export async function copyPrompts(options: CopyOptions = {}): Promise<CopyResult
     const source = path.join(getTemplatesDir(), 'prompts');
     const destination = path.join(targetDir, '.github', 'prompts');
 
-    return copyTemplateDirectory(source, destination, options.force || false);
+    return copyTemplateDirectory(source, destination, options.force || false, (src) => {
+        if (fs.lstatSync(src).isDirectory()) return true;
+        return path.basename(src).startsWith('swe.') && src.endsWith('.prompt.md');
+    });
 }
 
 /**
@@ -45,7 +48,10 @@ export async function copyAgents(options: CopyOptions = {}): Promise<CopyResult>
     const source = path.join(getTemplatesDir(), 'agents');
     const destination = path.join(targetDir, '.github', 'agents');
 
-    return copyTemplateDirectory(source, destination, options.force || false);
+    return copyTemplateDirectory(source, destination, options.force || false, (src) => {
+        if (fs.lstatSync(src).isDirectory()) return true;
+        return path.basename(src).startsWith('swe.') && src.endsWith('.agent.md');
+    });
 }
 
 /**
@@ -56,9 +62,21 @@ export async function copySkills(options: CopyOptions = {}): Promise<CopyResult>
     const source = path.join(getTemplatesDir(), 'skills');
     const destination = path.join(targetDir, '.github', 'skills');
 
-    // Skills directory might not exist yet, so we handle it gracefully in copyTemplateDirectory
-    // but here we can just proceed.
-    return copyTemplateDirectory(source, destination, options.force || false);
+    return copyTemplateDirectory(source, destination, options.force || false, (src) => {
+        const stat = fs.lstatSync(src);
+        if (src === source) return true; // Always allow root
+        
+        const basename = path.basename(src);
+        
+        if (stat.isDirectory()) {
+            // Only allow directories starting with swe. (direct children of source)
+            // If it's deeper, we might want to allow it? Assuming flat skills structure for now (skills/swe.xyz/)
+            return basename.startsWith('swe.');
+        }
+        
+        // Allow SKILL.md
+        return basename === 'SKILL.md';
+    });
 }
 
 /**
@@ -136,7 +154,8 @@ export async function updateGitignore(targetDir: string): Promise<boolean> {
 async function copyTemplateDirectory(
     source: string,
     destination: string,
-    force: boolean
+    force: boolean,
+    filterFn?: (src: string) => boolean
 ): Promise<CopyResult> {
     try {
         if (!(await fs.pathExists(source))) {
@@ -163,9 +182,12 @@ async function copyTemplateDirectory(
         await fs.copy(source, destination, { 
             overwrite: force,
             filter: (src) => {
-                // Always allow the root source directory and subdirectories
+                if (filterFn) {
+                    return filterFn(src);
+                }
+                
+                // Default filter if none provided (backward compatibility)
                 if (fs.lstatSync(src).isDirectory()) return true;
-                // Only allow files that start with 'swe.'
                 return path.basename(src).startsWith('swe.');
             }
         });
