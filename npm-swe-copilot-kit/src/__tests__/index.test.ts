@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, initAll } from '../index';
+import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll, updateGitignore } from '../index';
 
 describe('swe-copilot-kit', () => {
     const testDir = path.join(__dirname, '../../test-output');
@@ -32,25 +32,27 @@ describe('swe-copilot-kit', () => {
     });
 
     describe('listTemplates', () => {
-        it('should return an object with prompts and agents arrays', async () => {
+        it('should return an object with prompts, agents and skills arrays', async () => {
             const templates = await listTemplates();
             expect(templates).toHaveProperty('prompts');
             expect(templates).toHaveProperty('agents');
+            expect(templates).toHaveProperty('skills');
             expect(Array.isArray(templates.prompts)).toBe(true);
             expect(Array.isArray(templates.agents)).toBe(true);
+            expect(Array.isArray(templates.skills)).toBe(true);
         });
 
-        it('should list prompt files with .prompt.md extension', async () => {
+        it('should list prompt files with swe.*.prompt.md pattern', async () => {
             const templates = await listTemplates();
             templates.prompts.forEach(prompt => {
-                expect(prompt).toMatch(/\.prompt\.md$/);
+                expect(prompt).toMatch(/^swe\..*\.prompt\.md$/);
             });
         });
 
-        it('should list agent files with .agent.md extension', async () => {
+        it('should list agent files with swe.*.agent.md pattern', async () => {
             const templates = await listTemplates();
             templates.agents.forEach(agent => {
-                expect(agent).toMatch(/\.agent\.md$/);
+                expect(agent).toMatch(/^swe\..*\.agent\.md$/);
             });
         });
     });
@@ -110,18 +112,34 @@ describe('swe-copilot-kit', () => {
         });
     });
 
+    describe('copySkills', () => {
+        it('should copy skills to target directory', async () => {
+            const result = await copySkills({ targetDir: testDir });
+
+            expect(result.success).toBe(true);
+            expect(result.filesCount).toBeGreaterThan(0);
+            expect(result.destination).toContain('.github/skills');
+
+            const skillsExist = await fs.pathExists(path.join(testDir, '.github', 'skills'));
+            expect(skillsExist).toBe(true);
+        });
+    });
+
     describe('initAll', () => {
-        it('should initialize both prompts and agents', async () => {
+        it('should initialize prompts, agents, and skills', async () => {
             const result = await initAll({ targetDir: testDir });
 
             expect(result.prompts.success).toBe(true);
             expect(result.agents.success).toBe(true);
+            expect(result.skills.success).toBe(true);
 
             const promptsExist = await fs.pathExists(path.join(testDir, '.github', 'prompts'));
             const agentsExist = await fs.pathExists(path.join(testDir, '.github', 'agents'));
+            const skillsExist = await fs.pathExists(path.join(testDir, '.github', 'skills'));
 
             expect(promptsExist).toBe(true);
             expect(agentsExist).toBe(true);
+            expect(skillsExist).toBe(true);
         });
 
         it('should report correct file counts', async () => {
@@ -129,6 +147,40 @@ describe('swe-copilot-kit', () => {
 
             expect(result.prompts.filesCount).toBeGreaterThan(0);
             expect(result.agents.filesCount).toBeGreaterThan(0);
+            expect(result.skills.filesCount).toBeGreaterThan(0);
+        });
+    });
+
+    describe('updateGitignore', () => {
+        it('should create .gitignore if it does not exist', async () => {
+            await updateGitignore(testDir);
+            const exists = await fs.pathExists(path.join(testDir, '.gitignore'));
+            expect(exists).toBe(true);
+            const content = await fs.readFile(path.join(testDir, '.gitignore'), 'utf8');
+            expect(content).toContain('# Generated SWE Copilot Kit');
+            expect(content).toContain('.github/agents/swe.*');
+        });
+
+        it('should append to existing .gitignore', async () => {
+            const gitignorePath = path.join(testDir, '.gitignore');
+            await fs.ensureFile(gitignorePath);
+            await fs.writeFile(gitignorePath, 'node_modules\n');
+            
+            await updateGitignore(testDir);
+            
+            const content = await fs.readFile(gitignorePath, 'utf8');
+            expect(content).toContain('node_modules');
+            expect(content).toContain('# Generated SWE Copilot Kit');
+        });
+
+        it('should not duplicate if already exists', async () => {
+            await updateGitignore(testDir);
+            const content1 = await fs.readFile(path.join(testDir, '.gitignore'), 'utf8');
+            
+            await updateGitignore(testDir);
+            const content2 = await fs.readFile(path.join(testDir, '.gitignore'), 'utf8');
+            
+            expect(content1).toEqual(content2);
         });
     });
 });
