@@ -49,38 +49,59 @@ export async function copyAgents(options: CopyOptions = {}): Promise<CopyResult>
 }
 
 /**
- * Initialize both prompts and agents
+ * Copy skills to the target directory
  */
-export async function initAll(options: CopyOptions = {}): Promise<{ prompts: CopyResult; agents: CopyResult }> {
+export async function copySkills(options: CopyOptions = {}): Promise<CopyResult> {
+    const targetDir = options.targetDir || process.cwd();
+    const source = path.join(getTemplatesDir(), 'skills');
+    const destination = path.join(targetDir, '.github', 'skills');
+
+    // Skills directory might not exist yet, so we handle it gracefully in copyTemplateDirectory
+    // but here we can just proceed.
+    return copyTemplateDirectory(source, destination, options.force || false);
+}
+
+/**
+ * Initialize prompts, agents and skills
+ */
+export async function initAll(options: CopyOptions = {}): Promise<{ prompts: CopyResult; agents: CopyResult; skills: CopyResult }> {
     const prompts = await copyPrompts(options);
     const agents = await copyAgents(options);
+    const skills = await copySkills(options);
 
-    return { prompts, agents };
+    return { prompts, agents, skills };
 }
 
 /**
  * List available templates
  */
-export async function listTemplates(): Promise<{ prompts: string[]; agents: string[] }> {
+export async function listTemplates(): Promise<{ prompts: string[]; agents: string[]; skills: string[] }> {
     const templatesDir = getTemplatesDir();
 
     const promptsDir = path.join(templatesDir, 'prompts');
     const agentsDir = path.join(templatesDir, 'agents');
+    const skillsDir = path.join(templatesDir, 'skills');
 
     const prompts: string[] = [];
     const agents: string[] = [];
+    const skills: string[] = [];
 
     if (await fs.pathExists(promptsDir)) {
         const files = await fs.readdir(promptsDir);
-        prompts.push(...files.filter(f => f.endsWith('.prompt.md')));
+        prompts.push(...files.filter(f => f.startsWith('swe.') && f.endsWith('.prompt.md')));
     }
 
     if (await fs.pathExists(agentsDir)) {
         const files = await fs.readdir(agentsDir);
-        agents.push(...files.filter(f => f.endsWith('.agent.md')));
+        agents.push(...files.filter(f => f.startsWith('swe.') && f.endsWith('.agent.md')));
     }
 
-    return { prompts, agents };
+    if (await fs.pathExists(skillsDir)) {
+        const files = await fs.readdir(skillsDir);
+        skills.push(...files.filter(f => f.startsWith('swe.') && f.endsWith('.skill.md')));
+    }
+
+    return { prompts, agents, skills };
 }
 
 async function copyTemplateDirectory(
@@ -110,7 +131,15 @@ async function copyTemplateDirectory(
         }
 
         await fs.ensureDir(path.dirname(destination));
-        await fs.copy(source, destination, { overwrite: force });
+        await fs.copy(source, destination, { 
+            overwrite: force,
+            filter: (src) => {
+                // Always allow the root source directory and subdirectories
+                if (fs.lstatSync(src).isDirectory()) return true;
+                // Only allow files that start with 'swe.'
+                return path.basename(src).startsWith('swe.');
+            }
+        });
 
         const filesCount = await countFiles(destination);
 
@@ -151,6 +180,7 @@ async function countFiles(dir: string): Promise<number> {
 export default {
     copyPrompts,
     copyAgents,
+    copySkills,
     initAll,
     listTemplates,
     getTemplatesDir
