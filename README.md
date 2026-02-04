@@ -4,24 +4,151 @@
 [![npm-ci](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-ci.yml/badge.svg)](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-ci.yml)
 [![npm-publish](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-publish.yml)
 
-This repository serves as a comprehensive tool kit for GitHub Copilot, containing curated instructions, prompts, and best practices for AI-powered development workflows. It provides structured templates and guidelines to help developers and AI agents work more effectively with GitHub Copilot in development environments.
+A CLI toolkit to initialize curated prompts, agents, and skills in your project to support common Software Engineering tasks. These templates are designed to work with GitHub Copilot, Claude Code, and so on. Currently supports:
 
-## npm-swe-copilot-kit
+| Tool | Supported | Prompts | Agents | Skills |
+|------|-----------|---------|-------|-------|
+| GitHub Copilot | Yes (Default) | Yes | Yes | Yes |
+| Claude Code | _Coming soon_ | No | No | No |
+| Antigravity | _Coming soon_ | No | No | No |
 
-Refer to [npm-swe-copilot-kit](./npm-swe-copilot-kit/README.md) for more information.
+## Quick Start
 
-## Important Features and Documents
+### Using npx (no installation required)
 
-This is list of good references:
+```bash
+npx swe-copilot-kit init
+```
 
-- [GitHub Copilot Chat cheat sheet](https://docs.github.com/en/copilot/reference/cheat-sheet?tool=vscode): Use this cheat sheet to quickly reference the most common commands and options for VS Code.
-- [GitHub Copilot Chat Cookbook](https://docs.github.com/en/copilot/tutorials/copilot-chat-cookbook): Find examples of prompts.
-- [GitHub Copilot Extensions](https://docs.github.com/en/copilot/tutorials/try-extensions): Build and try out GitHub Copilot extension.
-- [GitHub Copilot Agents in Preview](https://docs.github.com/en/copilot/concepts/agents): Delegate tasks to GitHub Copilot coding agent to work on in the background, and then monitor Copilot's progress.
-- [GitHub Copilot Spaces in Preview](https://docs.github.com/en/copilot/how-tos/provide-context/use-copilot-spaces): A persistent space that remembers your code, files, and preferences across conversations.
-- [AI Model Comparison](https://docs.github.com/en/copilot/reference/ai-models/model-comparison): Compare available AI models in Copilot Chat and choose the best model for your task.
-- [Auto-generate commit message in GitHub Desktop](https://docs.github.com/en/copilot/responsible-use/copilot-in-github-desktop#about-copilot-in-github-desktop): Responsible use of GitHub Copilot in GitHub Desktop.
+### Global Installation
 
-## Community of Practices
+```bash
+npm install -g swe-copilot-kit
+swe-copilot-kit init
+```
 
-Awesome GitHub Copilot Customizations: <https://github.com/github/awesome-copilot/>
+Or use the shorter alias:
+
+```bash
+sck init
+```
+
+## What It Does
+
+This CLI toolkit unpacks pre-configured GitHub Copilot prompts and agents into your project's `.github` directory:
+
+```bash
+your-project/
+├── .github/
+│   ├── prompts/
+│   │   └── swe.*.prompt.md
+│   ├── agents/
+│   │   └── swe.*.agent.md
+│   └── skills/
+│       └── swe.*
+│           └── SKILL.md
+```
+
+## Commands
+
+### `init`
+
+Initialize GitHub Copilot configuration in your project.
+
+```bash
+swe-copilot-kit init [options]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-f, --force` | Overwrite existing files |
+| `-p, --prompts` | Initialize only prompts |
+| `-a, --agents` | Initialize only agents |
+| `--all` | Initialize both prompts and agents (default) |
+
+**Examples:**
+
+```bash
+# Initialize everything
+swe-copilot-kit init
+
+# Only initialize prompts
+swe-copilot-kit init --prompts
+
+# Only initialize agents
+swe-copilot-kit init --agents
+
+# Force overwrite existing files
+swe-copilot-kit init --force
+```
+
+### `list`
+
+List available templates.
+
+```bash
+swe-copilot-kit list
+```
+
+## Included Templates
+
+The package includes a variety of prompts and agents designed to assist with software engineering tasks, such as code committing, code reviewing, and coding assistance.
+
+## Programmatic Usage
+
+You can also use this package programmatically:
+
+```typescript
+import { copyPrompts, copyAgents, initAll, listTemplates } from 'swe-copilot-kit';
+
+// Initialize prompts only
+await copyPrompts({ force: true });
+
+// Initialize agents only
+await copyAgents({ targetDir: '/path/to/project' });
+
+// Initialize everything
+const result = await initAll({ force: true });
+
+// List available templates
+const templates = await listTemplates();
+console.log(templates.prompts);
+console.log(templates.agents);
+```
+
+## Using with GitHub Copilot
+
+After initialization, you can use the prompts and agents with GitHub Copilot:
+
+1. **Prompts**: Reference prompts in Copilot Chat using `/prompt <prompt-name>` to get specific assistance.
+2. **Agents**: Agents provide extended capabilities and workflows for Copilot
+
+## Customization
+
+After initialization, you can customize the prompts and agents to match your project's needs:
+
+1. Edit the `.github/prompts/swe.*.prompt.md` files to adjust prompt behavior
+2. Modify `.github/agents/swe.*.agent.md` files to change agent capabilities
+
+## Development
+
+### Building from source
+
+```bash
+git clone https://github.com/tlephan/swe-copilot-kit.git
+cd swe-copilot-kit
+npm install
+npm run build
+```
+
+### Running locally
+
+```bash
+npm run dev -- init
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

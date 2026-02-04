@@ -1,0 +1,17 @@
+# References
+
+## Important Features and Documents
+
+This is list of good references:
+
+- [GitHub Copilot Chat cheat sheet](https://docs.github.com/en/copilot/reference/cheat-sheet?tool=vscode): Use this cheat sheet to quickly reference the most common commands and options for VS Code.
+- [GitHub Copilot Chat Cookbook](https://docs.github.com/en/copilot/tutorials/copilot-chat-cookbook): Find examples of prompts.
+- [GitHub Copilot Extensions](https://docs.github.com/en/copilot/tutorials/try-extensions): Build and try out GitHub Copilot extension.
+- [GitHub Copilot Agents in Preview](https://docs.github.com/en/copilot/concepts/agents): Delegate tasks to GitHub Copilot coding agent to work on in the background, and then monitor Copilot's progress.
+- [GitHub Copilot Spaces in Preview](https://docs.github.com/en/copilot/how-tos/provide-context/use-copilot-spaces): A persistent space that remembers your code, files, and preferences across conversations.
+- [AI Model Comparison](https://docs.github.com/en/copilot/reference/ai-models/model-comparison): Compare available AI models in Copilot Chat and choose the best model for your task.
+- [Auto-generate commit message in GitHub Desktop](https://docs.github.com/en/copilot/responsible-use/copilot-in-github-desktop#about-copilot-in-github-desktop): Responsible use of GitHub Copilot in GitHub Desktop.
+
+## Community of Practices
+
+- [github/awesome-copilot](https://github.com/github/awesome-copilot) - A curated list of awesome projects, tools, articles, and resources related to GitHub Copilot.
