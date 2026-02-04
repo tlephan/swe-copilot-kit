@@ -6,11 +6,11 @@
 
 A CLI toolkit to initialize curated prompts, agents, and skills in your project to support common Software Engineering tasks. These templates are designed to work with GitHub Copilot, Claude Code, and so on. Currently supports:
 
-| Tool | Supported | Prompts | Agents | Skills |
-|------|-----------|---------|-------|-------|
-| GitHub Copilot | Yes (Default) | Yes | Yes | Yes |
-| Claude Code | _Coming soon_ | No | No | No |
-| Antigravity | _Coming soon_ | No | No | No |
+| Tool           | Supported     | Prompts | Agents | Skills |
+| -------------- | ------------- | ------- | ------ | ------ |
+| GitHub Copilot | Yes (Default) | Yes     | Yes    | Yes    |
+| Claude Code    | _Coming soon_ | No      | No     | No     |
+| Antigravity    | _Coming soon_ | No      | No     | No     |
 
 ## Quick Start
 
@@ -61,9 +61,9 @@ swe-copilot-kit init [options]
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `-f, --force` | Overwrite existing files |
+| Option          | Description                                |
+| --------------- | ------------------------------------------ |
+| `-f, --force`   | Overwrite existing files                   |
 | `--claude-code` | Initialize for Claude Code _(Coming soon)_ |
 | `--antigravity` | Initialize for Antigravity _(Coming soon)_ |
 
@@ -94,13 +94,18 @@ The package includes a variety of prompts and agents designed to assist with sof
 You can also use this package programmatically:
 
 ```typescript
-import { copyPrompts, copyAgents, initAll, listTemplates } from 'swe-copilot-kit';
+import {
+  copyPrompts,
+  copyAgents,
+  initAll,
+  listTemplates,
+} from "swe-copilot-kit";
 
 // Initialize prompts only
 await copyPrompts({ force: true });
 
 // Initialize agents only
-await copyAgents({ targetDir: '/path/to/project' });
+await copyAgents({ targetDir: "/path/to/project" });
 
 // Initialize everything
 const result = await initAll({ force: true });
@@ -144,4 +149,4 @@ npm run dev -- init
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License
