@@ -69,7 +69,8 @@ describe('swe-copilot-kit', () => {
                 'swe.design',
                 'swe.implement',
                 'swe.verify',
-                'swe.debug', 'swe.refactor', 'swe.documentation', 'swe.dependency-upgrade'
+                'swe.debug', 'swe.refactor', 'swe.documentation', 'swe.dependency-upgrade',
+                'swe.security-vulnerability-triage', 'swe.security-vulnerability-remediation'
             ]));
         });
     });

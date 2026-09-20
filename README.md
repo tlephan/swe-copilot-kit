@@ -113,7 +113,7 @@ GitHub Copilot retains its established `.github/prompts`, `.github/agents`, and 
 
 ## Included Templates
 
-The kit contains reusable workflows for commits, debugging, refactoring, documentation, dependency upgrades, code review, design, implementation, verification, and test generation.
+The kit contains reusable workflows for commits, debugging, refactoring, documentation, dependency upgrades, code review, design, implementation, verification, unit and integration test generation, security vulnerability triage, and security vulnerability remediation.
 
 ## Programmatic Usage
 
