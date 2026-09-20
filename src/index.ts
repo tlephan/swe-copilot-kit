@@ -31,6 +31,7 @@ export interface PlatformInitResult {
     platform: Platform;
     copies: PlatformCopyResult[];
 }
+export interface TemplateValidationResult { valid: boolean; errors: string[]; }
 
 interface PlatformDefinition {
     displayName: string;
@@ -158,9 +159,38 @@ export async function listTemplates(): Promise<{ prompts: string[]; agents: stri
     const templatesDir = getTemplatesDir();
     const prompts = await listDirectory(path.join(templatesDir, 'prompts'), file => file.startsWith('swe.') && file.endsWith('.prompt.md'));
     const agents = await listDirectory(path.join(templatesDir, 'agents'), file => file.startsWith('swe.') && file.endsWith('.agent.md'));
-    const skillsDir = path.join(templatesDir, 'skills');
-    const skills = (await fs.pathExists(skillsDir)) ? (await fs.readdir(skillsDir)).filter(file => file.startsWith('swe.')) : [];
+    const skills = await listSkillDirectories(path.join(templatesDir, 'skills'));
     return { prompts, agents, skills };
+}
+
+/** Validate bundled template metadata and portable skill-name collisions. */
+export async function validateTemplates(): Promise<TemplateValidationResult> {
+    const errors: string[] = [];
+    const templatesDir = getTemplatesDir();
+    const sources = [
+        ...await listDirectory(path.join(templatesDir, 'prompts'), file => file.endsWith('.prompt.md')).then(files => files.map(file => path.join(templatesDir, 'prompts', file))),
+        ...await listDirectory(path.join(templatesDir, 'agents'), file => file.endsWith('.agent.md')).then(files => files.map(file => path.join(templatesDir, 'agents', file)))
+    ];
+    const skillsDir = path.join(templatesDir, 'skills');
+    for (const directory of await listSkillDirectories(skillsDir)) sources.push(path.join(skillsDir, directory, 'SKILL.md'));
+
+    const portableNames = new Map<string, string>();
+    for (const source of sources) {
+        if (!(await fs.pathExists(source))) { errors.push(`Missing template: ${source}`); continue; }
+        const content = await fs.readFile(source, 'utf8');
+        const frontmatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+        if (!frontmatter) { errors.push(`Missing frontmatter: ${source}`); continue; }
+        const name = frontmatter[1].match(/^name:\s*(.+)$/m)?.[1].trim();
+        const description = frontmatter[1].match(/^description:\s*(.+)$/m)?.[1].trim();
+        if (!name) errors.push(`Missing name: ${source}`);
+        if (!description) errors.push(`Missing description: ${source}`);
+        if (name && !/^swe\.[a-z0-9-]+$/.test(name)) errors.push(`Invalid SWE name "${name}": ${source}`);
+        const portableName = normaliseName(path.basename(source) === 'SKILL.md' ? path.basename(path.dirname(source)) : path.basename(source));
+        const previous = portableNames.get(portableName);
+        if (previous) errors.push(`Portable skill collision "${portableName}": ${previous} and ${source}`);
+        else portableNames.set(portableName, source);
+    }
+    return { valid: errors.length === 0, errors };
 }
 
 /** Add the installed platform's generated files to .gitignore. */
@@ -319,6 +349,16 @@ async function listDirectory(directory: string, predicate: (file: string) => boo
     return (await fs.readdir(directory)).filter(predicate);
 }
 
+async function listSkillDirectories(directory: string): Promise<string[]> {
+    if (!(await fs.pathExists(directory))) return [];
+    const entries = await fs.readdir(directory);
+    const skills = await Promise.all(entries.filter(entry => entry.startsWith('swe.')).map(async entry => {
+        const skillPath = path.join(directory, entry, 'SKILL.md');
+        return (await fs.pathExists(skillPath)) ? entry : undefined;
+    }));
+    return skills.filter((entry): entry is string => Boolean(entry));
+}
+
 function failedCopy(destination: string, error: unknown): CopyResult {
     return { success: false, filesCount: 0, destination, error: error instanceof Error ? error.message : String(error) };
 }
@@ -350,4 +390,4 @@ async function countFiles(directory: string): Promise<number> {
     return count;
 }
 
-export default { copyPrompts, copyAgents, copySkills, initAll, initPlatform, listTemplates, getTemplatesDir, updateGitignore };
+export default { copyPrompts, copyAgents, copySkills, initAll, initPlatform, listTemplates, validateTemplates, getTemplatesDir, updateGitignore };

@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { CopyResult, getPlatformDisplayName, initPlatform, isPlatform, listTemplates, Platform, updateGitignore } from './index.js';
+import { CopyResult, getPlatformDisplayName, initPlatform, isPlatform, listTemplates, Platform, updateGitignore, validateTemplates } from './index.js';
 
 import packageJson from '../package.json' with { type: 'json' };
 
@@ -83,6 +83,16 @@ program
             console.log(chalk.yellow.bold(`${type}:`));
             files.forEach(file => console.log(`  ${file}`));
         }
+    });
+
+program
+    .command('validate')
+    .description('Validate bundled SWE template metadata and portable names')
+    .action(async () => {
+        const result = await validateTemplates();
+        if (result.valid) { console.log(chalk.green('All SWE templates are valid.')); return; }
+        result.errors.forEach(error => console.error(chalk.red(`- ${error}`)));
+        process.exitCode = 1;
     });
 
 function reportCopy(type: string, result: CopyResult): void {

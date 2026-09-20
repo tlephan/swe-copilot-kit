@@ -77,6 +77,14 @@ List the bundled source templates.
 sck list
 ```
 
+### `validate`
+
+Validate bundled frontmatter and cross-platform portable skill names before publishing or extending the kit.
+
+```bash
+sck validate
+```
+
 ## Generated layouts
 
 ```text
@@ -105,7 +113,7 @@ GitHub Copilot retains its established `.github/prompts`, `.github/agents`, and 
 
 ## Included Templates
 
-The kit contains reusable workflows for commits, code review, code explanation, changelog and table-of-contents updates, version upgrades, design, implementation, verification, unit-test generation, and integration-test generation. The `swe.code-review` skill includes an evidence-based review process covering correctness, security, reliability, compatibility, and test gaps.
+The kit contains reusable workflows for commits, debugging, refactoring, documentation, dependency upgrades, code review, design, implementation, verification, and test generation.
 
 ## Programmatic Usage
 

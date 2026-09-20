@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll, initPlatform, updateGitignore } from '../index.js';
+import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll, initPlatform, updateGitignore, validateTemplates } from '../index.js';
 
 describe('swe-copilot-kit', () => {
     const testDir = path.join(__dirname, '../../test-output');
@@ -32,6 +32,9 @@ describe('swe-copilot-kit', () => {
     });
 
     describe('listTemplates', () => {
+        it('should validate all bundled templates', async () => {
+            await expect(validateTemplates()).resolves.toEqual({ valid: true, errors: [] });
+        });
         it('should return an object with prompts, agents and skills arrays', async () => {
             const templates = await listTemplates();
             expect(templates).toHaveProperty('prompts');
@@ -65,7 +68,8 @@ describe('swe-copilot-kit', () => {
                 'swe.integration-test-generation',
                 'swe.design',
                 'swe.implement',
-                'swe.verify'
+                'swe.verify',
+                'swe.debug', 'swe.refactor', 'swe.documentation', 'swe.dependency-upgrade'
             ]));
         });
     });
