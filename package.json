@@ -1,6 +1,6 @@
 {
     "name": "swe-copilot-kit",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "CLI toolkit to initialize SWE templates for GitHub Copilot, Claude Code, Antigravity, Codex, and Kiro",
     "type": "module",
     "main": "dist/index.js",
