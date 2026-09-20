@@ -11,6 +11,8 @@ A CLI toolkit to initialize curated prompts, agents, and skills in your project 
 | GitHub Copilot | Yes (Default) | Yes | Yes | Yes |
 | Claude Code | _Coming soon_ | No | No | No |
 | Antigravity | _Coming soon_ | No | No | No |
+| Codex | _Coming soon_ | No | No | No |
+| Kiro | _Coming soon_ | No | No | No |
 
 ## Quick Start
 
