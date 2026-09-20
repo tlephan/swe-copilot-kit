@@ -47,6 +47,7 @@ describe('swe-copilot-kit', () => {
             templates.prompts.forEach(prompt => {
                 expect(prompt).toMatch(/^swe\..*\.prompt\.md$/);
             });
+            expect(templates.prompts).toContain('swe.commit-code.prompt.md');
         });
 
         it('should list agent files with swe.*.agent.md pattern', async () => {
@@ -161,6 +162,21 @@ describe('swe-copilot-kit', () => {
             expect(result.agents.filesCount).toBeGreaterThanOrEqual(0);
             expect(result.skills.filesCount).toBeGreaterThanOrEqual(0);
         });
+
+        it('should not partially initialize when one destination already exists', async () => {
+            const existingAgents = path.join(testDir, '.github', 'agents');
+            await fs.ensureDir(existingAgents);
+            await fs.writeFile(path.join(existingAgents, 'local.agent.md'), 'keep me');
+
+            const result = await initAll({ targetDir: testDir });
+
+            expect(result.prompts.success).toBe(false);
+            expect(result.agents.success).toBe(false);
+            expect(result.skills.success).toBe(false);
+            expect(await fs.pathExists(path.join(testDir, '.github', 'prompts'))).toBe(false);
+            expect(await fs.pathExists(path.join(testDir, '.github', 'skills'))).toBe(false);
+            expect(await fs.readFile(path.join(existingAgents, 'local.agent.md'), 'utf8')).toBe('keep me');
+        });
     });
 
     describe('initPlatform', () => {
@@ -189,6 +205,16 @@ describe('swe-copilot-kit', () => {
             const agent = path.join(testDir, '.codex', 'agents', 'swe-coder.toml');
 
             expect(await fs.readFile(agent, 'utf8')).toContain('name = "swe_coder"');
+        });
+
+        it('should not partially initialize a platform when its agent destination exists', async () => {
+            const agentsDirectory = path.join(testDir, '.kiro', 'agents');
+            await fs.ensureDir(agentsDirectory);
+
+            const result = await initPlatform('kiro', { targetDir: testDir });
+
+            expect(result.copies.every(copy => !copy.result.success)).toBe(true);
+            expect(await fs.pathExists(path.join(testDir, '.kiro', 'skills'))).toBe(false);
         });
     });
 

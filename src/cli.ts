@@ -9,6 +9,7 @@ import packageJson from '../package.json' with { type: 'json' };
 
 interface InitOptions {
     force?: boolean;
+    gitignore?: boolean;
     platform?: string;
     claudeCode?: boolean;
     antigravity?: boolean;
@@ -27,6 +28,7 @@ program
     .command('init')
     .description('Initialize templates for an AI coding tool')
     .option('-f, --force', 'Overwrite existing files', false)
+    .option('--gitignore', 'Add generated template paths to .gitignore', false)
     .option('-p, --platform <platform>', 'Target: github-copilot, claude-code, antigravity, codex, or kiro', 'github-copilot')
     .option('--claude-code', 'Alias for --platform claude-code', false)
     .option('--antigravity', 'Alias for --platform antigravity', false)
@@ -52,13 +54,15 @@ program
                 reportCopy(copy.type, copy.result);
             }
 
-            const gitignoreSpinner = ora('Updating .gitignore...').start();
-            const updated = await updateGitignore(targetDir, platform);
-            updated ? gitignoreSpinner.succeed('Updated .gitignore') : gitignoreSpinner.info('.gitignore already up to date');
-
             if (initialization.copies.some(copy => !copy.result.success)) {
                 process.exitCode = 1;
                 return;
+            }
+
+            if (options.gitignore) {
+                const gitignoreSpinner = ora('Updating .gitignore...').start();
+                const updated = await updateGitignore(targetDir, platform);
+                updated ? gitignoreSpinner.succeed('Updated .gitignore') : gitignoreSpinner.info('.gitignore already up to date');
             }
 
             console.log();

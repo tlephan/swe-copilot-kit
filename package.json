@@ -9,7 +9,8 @@
         "sck": "dist/cli.js"
     },
     "scripts": {
-        "build": "tsc",
+        "clean": "node scripts/clean.mjs",
+        "build": "npm run clean && tsc",
         "dev": "node --loader ts-node/esm src/cli.ts",
         "prepublishOnly": "npm run build",
         "test": "jest --runInBand"

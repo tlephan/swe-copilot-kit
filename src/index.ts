@@ -89,6 +89,21 @@ export async function copySkills(options: CopyOptions = {}): Promise<CopyResult>
 
 /** Initialize the legacy GitHub Copilot layout. */
 export async function initAll(options: CopyOptions = {}): Promise<{ prompts: CopyResult; agents: CopyResult; skills: CopyResult }> {
+    const targetDir = options.targetDir || process.cwd();
+    const destinations = [
+        path.join(targetDir, '.github', 'prompts'),
+        path.join(targetDir, '.github', 'agents'),
+        path.join(targetDir, '.github', 'skills')
+    ];
+    const conflict = await findDestinationConflict(destinations, options.force || false);
+    if (conflict) {
+        return {
+            prompts: destinationConflictResult(destinations[0], conflict),
+            agents: destinationConflictResult(destinations[1], conflict),
+            skills: destinationConflictResult(destinations[2], conflict)
+        };
+    }
+
     const prompts = await copyPrompts(options);
     const agents = await copyAgents(options);
     const skills = await copySkills(options);
@@ -115,11 +130,23 @@ export async function initPlatform(platform: Platform, options: CopyOptions = {}
 
     const definition = platformDefinitions[platform];
     const targetDir = options.targetDir || process.cwd();
-    const skills = await copyPortableSkills(path.join(targetDir, definition.skillsDirectory), options.force || false, definition.agentAsSkill || false);
+    const skillsDestination = path.join(targetDir, definition.skillsDirectory);
+    const agentsDestination = definition.agentsDirectory ? path.join(targetDir, definition.agentsDirectory) : undefined;
+    const conflict = await findDestinationConflict(
+        [skillsDestination, agentsDestination].filter((destination): destination is string => Boolean(destination)),
+        options.force || false
+    );
+    if (conflict) {
+        const copies: PlatformCopyResult[] = [{ type: 'skills', result: destinationConflictResult(skillsDestination, conflict) }];
+        if (agentsDestination) copies.unshift({ type: 'agents', result: destinationConflictResult(agentsDestination, conflict) });
+        return { platform, copies };
+    }
+
+    const skills = await copyPortableSkills(skillsDestination, options.force || false, definition.agentAsSkill || false);
     const copies: PlatformCopyResult[] = [{ type: 'skills', result: skills }];
 
-    if (definition.agentsDirectory && definition.agentFormat) {
-        const agents = await copyPortableAgents(path.join(targetDir, definition.agentsDirectory), options.force || false, definition.agentFormat);
+    if (agentsDestination && definition.agentFormat) {
+        const agents = await copyPortableAgents(agentsDestination, options.force || false, definition.agentFormat);
         copies.unshift({ type: 'agents', result: agents });
     }
 
@@ -227,6 +254,23 @@ async function writeGeneratedFiles(destination: string, entries: Array<{ relativ
     await fs.ensureDir(destination);
     await Promise.all(entries.map(entry => fs.outputFile(path.join(destination, entry.relativePath), entry.content)));
     return { success: true, filesCount: entries.length, destination };
+}
+
+async function findDestinationConflict(destinations: string[], force: boolean): Promise<string | undefined> {
+    if (force) return undefined;
+    for (const destination of destinations) {
+        if (await fs.pathExists(destination)) return destination;
+    }
+    return undefined;
+}
+
+function destinationConflictResult(destination: string, conflict: string): CopyResult {
+    return {
+        success: false,
+        filesCount: 0,
+        destination,
+        error: `Initialization was not started because destination already exists: ${conflict}. Use force option to overwrite.`
+    };
 }
 
 function toSkill(content: string, name: string): string {

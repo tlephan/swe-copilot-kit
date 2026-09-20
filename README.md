@@ -43,6 +43,7 @@ swe-copilot-kit init [options]
 | Option | Description |
 |--------|-------------|
 | `-f, --force` | Overwrite generated template files in the target layout |
+| `--gitignore` | Add generated template paths to `.gitignore` instead of committing them |
 | `-p, --platform <name>` | `github-copilot`, `claude-code`, `antigravity`, `codex`, or `kiro` |
 | `--claude-code` | Alias for `--platform claude-code` |
 | `--antigravity` | Alias for `--platform antigravity` |
@@ -125,6 +126,8 @@ console.log(templates.skills);
 ## Customization
 
 Generated files are regular project files. Edit them to match your repository conventions, then commit them if the whole team should share the configuration.
+
+Use `--gitignore` only when the generated configuration is intentionally local to one developer.
 
 ## Development
 
