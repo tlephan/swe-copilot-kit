@@ -104,7 +104,7 @@ GitHub Copilot retains its established `.github/prompts`, `.github/agents`, and 
 
 ## Included Templates
 
-The kit contains reusable workflows for commits, code review, code explanation, changelog and table-of-contents updates, and version upgrades. The `swe.code-review` skill includes an evidence-based review process covering correctness, security, reliability, compatibility, and test gaps.
+The kit contains reusable workflows for commits, code review, code explanation, changelog and table-of-contents updates, version upgrades, design, implementation, verification, unit-test generation, and integration-test generation. The `swe.code-review` skill includes an evidence-based review process covering correctness, security, reliability, compatibility, and test gaps.
 
 ## Programmatic Usage
 

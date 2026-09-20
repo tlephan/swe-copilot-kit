@@ -55,6 +55,18 @@ describe('swe-copilot-kit', () => {
                 expect(agent).toMatch(/^swe\..*\.agent\.md$/);
             });
         });
+
+        it('should list all bundled SWE skills', async () => {
+            const templates = await listTemplates();
+            expect(templates.skills).toEqual(expect.arrayContaining([
+                'swe.code-review',
+                'swe.unit-test-generation',
+                'swe.integration-test-generation',
+                'swe.design',
+                'swe.implement',
+                'swe.verify'
+            ]));
+        });
     });
 
     describe('copyPrompts', () => {
