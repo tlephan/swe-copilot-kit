@@ -14,6 +14,7 @@ Add small, deterministic tests that verify the behavior of the unit under test t
 3. Isolate external effects with the smallest appropriate fake, stub, mock, or in-memory dependency. Preserve real behavior when a dependency is already deterministic and inexpensive.
 4. Write independent tests with descriptive names and clear arrange-act-assert structure. Each test should demonstrate one behavior or one closely related rule.
 5. Run the focused test command and fix failures caused by the test or implementation. Do not alter production behavior solely to satisfy an incorrect test.
+6. Review the test's failure mode: it should fail for a meaningful regression in the contract, not merely because an internal helper, call order, or implementation detail changed.
 
 ## Quality checks
 
@@ -21,6 +22,8 @@ Add small, deterministic tests that verify the behavior of the unit under test t
 - Assert outputs, visible side effects, errors, and dependency interactions only when each is part of the contract.
 - Avoid timing-dependent assertions, order coupling, shared mutable fixtures, and mocks that reproduce the implementation.
 - Reuse the project's existing test framework, helpers, naming, and fixture patterns.
+- Use deterministic data and explicit clocks, randomness, locale, and environment setup when those values affect behavior.
+- Test one policy at the narrowest useful level; move to integration coverage when a unit test would need to duplicate a real component's behavior.
 
 ## Deliverable
 

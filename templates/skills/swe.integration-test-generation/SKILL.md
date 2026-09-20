@@ -15,6 +15,7 @@ Create reliable tests that prove a user-relevant flow works across the component
 4. Establish known data before each test and clean up after it. Make resource names unique when tests can run concurrently.
 5. Test the successful flow plus realistic failure responses, authorization, validation, persistence, serialization, and retry behavior when the changed path owns them.
 6. Run the narrowest relevant integration suite and report any environment prerequisite that prevents execution.
+7. Verify teardown even when a test fails, and ensure shared schemas, ports, queues, and files cannot leak state into a later test or developer environment.
 
 ## Reliability rules
 
@@ -22,6 +23,8 @@ Create reliable tests that prove a user-relevant flow works across the component
 - Assert externally visible behavior: status codes, messages, stored records, emitted events, or rendered output.
 - Keep fixtures minimal and use the project's approved configuration for credentials and service endpoints.
 - Do not silently skip a test because infrastructure is unavailable; report the blocker clearly.
+- Assert an observable boundary result and, only where necessary, the durable side effect that proves the components agreed. Avoid asserting incidental internal calls.
+- Use bounded waits and explicit readiness checks for asynchronous systems; avoid arbitrary sleeps.
 
 ## Deliverable
 

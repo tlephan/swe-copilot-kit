@@ -14,12 +14,15 @@ Implement the requested behavior with the smallest defensible change that fits t
 3. Handle expected errors, validation, authorization, resource cleanup, and compatibility at the layer that owns them.
 4. Add or update the narrowest appropriate tests for the changed contract. Prefer unit tests; add integration coverage when behavior crosses a real boundary.
 5. Run formatting, type checks, tests, and build commands relevant to the change. Investigate failures instead of masking them.
+6. Review the final diff for accidental API, configuration, generated-output, dependency, or sensitive-data changes before handoff.
 
 ## Guardrails
 
 - Do not overwrite unrelated user changes.
 - Do not add dependencies, modify infrastructure, or perform external actions unless the task authorizes them.
 - Keep generated files and migrations consistent with their source definitions.
+- Make state changes safe to retry or fail predictably when the affected workflow can be retried, interrupted, or invoked concurrently.
+- Preserve telemetry, audit, and error-reporting contracts when they support operations or debugging.
 - Report any assumption, blocked validation, or follow-up work that remains.
 
 ## Deliverable

@@ -18,6 +18,7 @@ Review changes as an owner of the affected code. Focus on actionable defects int
    - API compatibility, error handling, maintainability, and test coverage
 4. Validate every finding against the repository. Cite the precise file and line or a small code location, explain the triggering condition, and state the concrete consequence. Do not report speculative concerns without evidence.
 5. Check the tests. Confirm that the changed behavior and meaningful failure paths are covered. Recommend a specific missing test only when it would expose a realistic defect or protect a changed contract.
+6. Separate defects introduced by this change from pre-existing observations and optional improvements. If a concern depends on an assumption that cannot be checked, state that assumption and lower confidence rather than presenting it as a confirmed finding.
 
 ## What to look for
 
