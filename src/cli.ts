@@ -3,144 +3,101 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { copyPrompts, copyAgents, copySkills, listTemplates, CopyResult, updateGitignore } from './index';
+import { CopyResult, getPlatformDisplayName, initPlatform, isPlatform, listTemplates, Platform, updateGitignore } from './index.js';
 
-const packageJson = require('../package.json');
+import packageJson from '../package.json' with { type: 'json' };
 
 interface InitOptions {
     force?: boolean;
+    platform?: string;
     claudeCode?: boolean;
     antigravity?: boolean;
+    codex?: boolean;
+    kiro?: boolean;
 }
 
 const program = new Command();
 
-
-
-// ASCII Art Banner
-const banner = `
-${chalk.cyan('╔═══════════════════════════════════════════════╗')}
-${chalk.cyan('║')}  ${chalk.bold.white('🤖 SWE Copilot Kit')}                           ${chalk.cyan('║')}
-${chalk.cyan('║')}  ${chalk.gray('Copilot Prompts, Agents, Skills Initializer')}  ${chalk.cyan('║')}
-${chalk.cyan('╚═══════════════════════════════════════════════╝')}
-`;
-
 program
     .name('swe-copilot-kit')
-    .description('CLI tool to initialize GitHub Copilot prompts and agents in your project')
+    .description('Initialize SWE templates for AI coding tools')
     .version(packageJson.version);
 
 program
     .command('init')
-    .description('Initialize .github/prompts, .github/agents and .github/skills directories')
+    .description('Initialize templates for an AI coding tool')
     .option('-f, --force', 'Overwrite existing files', false)
-    .option('--claude-code', 'Initialize for Claude Code (Coming soon)', false)
-    .option('--antigravity', 'Initialize for Antigravity (Coming soon)', false)
+    .option('-p, --platform <platform>', 'Target: github-copilot, claude-code, antigravity, codex, or kiro', 'github-copilot')
+    .option('--claude-code', 'Alias for --platform claude-code', false)
+    .option('--antigravity', 'Alias for --platform antigravity', false)
+    .option('--codex', 'Alias for --platform codex', false)
+    .option('--kiro', 'Alias for --platform kiro', false)
     .action(async (options: InitOptions) => {
-        console.log(banner);
-
-        if (options.claudeCode) {
-            console.log(chalk.yellow('⚠️  Claude Code support is coming soon!'));
-            return;
-        }
-
-        if (options.antigravity) {
-            console.log(chalk.yellow('⚠️  Antigravity support is coming soon!'));
+        const platform = resolvePlatform(options);
+        if (!platform) {
+            console.error(chalk.red('Error: select exactly one supported platform.'));
+            process.exitCode = 1;
             return;
         }
 
         const targetDir = process.cwd();
-
-        console.log(chalk.blue('📁 Target directory:'), chalk.white(targetDir));
+        const platformName = getPlatformDisplayName(platform);
+        console.log(chalk.bold(`SWE Copilot Kit - ${platformName}`));
+        console.log(chalk.blue('Target directory:'), chalk.white(targetDir));
         console.log();
 
         try {
-            await runCopy('prompts', () => copyPrompts({ targetDir, force: options.force }));
-            await runCopy('agents', () => copyAgents({ targetDir, force: options.force }));
-            await runCopy('skills', () => copySkills({ targetDir, force: options.force }));
+            const initialization = await initPlatform(platform, { targetDir, force: options.force });
+            for (const copy of initialization.copies) {
+                reportCopy(copy.type, copy.result);
+            }
 
             const gitignoreSpinner = ora('Updating .gitignore...').start();
-            try {
-                const updated = await updateGitignore(targetDir);
-                if (updated) {
-                    gitignoreSpinner.succeed('Updated .gitignore');
-                } else {
-                    gitignoreSpinner.info('.gitignore already up to date');
-                }
-            } catch (error) {
-                gitignoreSpinner.fail('Failed to update .gitignore');
+            const updated = await updateGitignore(targetDir, platform);
+            updated ? gitignoreSpinner.succeed('Updated .gitignore') : gitignoreSpinner.info('.gitignore already up to date');
+
+            if (initialization.copies.some(copy => !copy.result.success)) {
+                process.exitCode = 1;
+                return;
             }
 
             console.log();
-            console.log(chalk.green.bold('✨ Successfully initialized GitHub Copilot configuration!'));
-            console.log();
-            console.log(chalk.gray('Next steps:'));
-            console.log(chalk.white('  1. Review the generated files in .github/prompts, .github/agents and .github/skills'));
-            console.log(chalk.white('  2. Customize the templates to match your project needs'));
-            console.log(chalk.white('  3. Use GitHub Copilot Chat with your new templates'));
-            console.log();
-
+            console.log(chalk.green.bold(`Successfully initialized ${platformName} configuration.`));
+            console.log(chalk.gray('Review and customize the generated templates before using them.'));
         } catch (error) {
             console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
-            process.exit(1);
+            process.exitCode = 1;
         }
     });
-
-async function runCopy(type: string, copyFn: () => Promise<CopyResult>) {
-    const spinner = ora(`Installing ${type}...`).start();
-    try {
-        const result = await copyFn();
-        if (result.success) {
-            spinner.succeed(`Installed ${chalk.green(result.filesCount)} ${type} file(s) to ${chalk.cyan(result.destination)}`);
-        } else {
-             // If failure is due to existing files and no force
-            if (result.error && result.error.includes('already exists')) {
-                spinner.warn(chalk.yellow(result.error));
-            } else if (result.error && result.error.includes('Source directory not found')) {
-                 spinner.fail(`Failed to install ${type}: ${result.error}`);
-            } else {
-                spinner.fail(`Failed to install ${type}: ${result.error}`);
-            }
-        }
-    } catch (e) {
-        spinner.fail(`Failed to install ${type}: ${e instanceof Error ? e.message : String(e)}`);
-    }
-}
 
 program
     .command('list')
-    .description('List available templates')
+    .description('List available source templates')
     .action(async () => {
-        console.log(banner);
-
-        console.log(chalk.blue.bold('📋 Available Templates:\n'));
-
         const templates = await listTemplates();
-
-        if (templates.prompts.length > 0) {
-            console.log(chalk.yellow.bold('  Prompts:'));
-            for (const prompt of templates.prompts) {
-                console.log(chalk.white(`    • ${prompt}`));
-            }
-            console.log();
-        }
-
-        if (templates.agents.length > 0) {
-            console.log(chalk.yellow.bold('  Agents:'));
-            for (const agent of templates.agents) {
-                console.log(chalk.white(`    • ${agent}`));
-            }
-            console.log();
-        }
-
-        if (templates.skills.length > 0) {
-            console.log(chalk.yellow.bold('  Skills:'));
-            for (const skill of templates.skills) {
-                console.log(chalk.white(`    • ${skill}`));
-            }
-            console.log();
+        for (const [type, files] of Object.entries(templates)) {
+            console.log(chalk.yellow.bold(`${type}:`));
+            files.forEach(file => console.log(`  ${file}`));
         }
     });
 
+function reportCopy(type: string, result: CopyResult): void {
+    if (result.success) {
+        console.log(chalk.green(`Installed ${result.filesCount} ${type} file(s) to ${result.destination}`));
+        return;
+    }
+    console.log(chalk.yellow(`Skipped ${type}: ${result.error}`));
+}
+
+function resolvePlatform(options: InitOptions): Platform | undefined {
+    const aliases: Platform[] = [];
+    if (options.claudeCode) aliases.push('claude-code');
+    if (options.antigravity) aliases.push('antigravity');
+    if (options.codex) aliases.push('codex');
+    if (options.kiro) aliases.push('kiro');
+    if (aliases.length > 1 || (aliases.length === 1 && options.platform !== 'github-copilot' && options.platform !== aliases[0])) return undefined;
+    if (aliases.length === 1) return aliases[0];
+    return options.platform && isPlatform(options.platform) ? options.platform : undefined;
+}
 
 program.parse();

@@ -4,146 +4,134 @@
 [![npm-ci](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-ci.yml/badge.svg)](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-ci.yml)
 [![npm-publish](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/tlephan/swe-copilot-kit/actions/workflows/npm-publish.yml)
 
-A CLI toolkit to initialize curated prompts, agents, and skills in your project to support common Software Engineering tasks. These templates are designed to work with GitHub Copilot, Claude Code, and so on. Currently supports:
+A CLI toolkit that installs curated software-engineering prompts, agents, and skills into the native project layout of your AI coding tool.
 
-| Tool | Supported | Prompts | Agents | Skills |
-|------|-----------|---------|-------|-------|
-| GitHub Copilot | Yes (Default) | Yes | Yes | Yes |
-| Claude Code | _Coming soon_ | No | No | No |
-| Antigravity | _Coming soon_ | No | No | No |
-| Codex | _Coming soon_ | No | No | No |
-| Kiro | _Coming soon_ | No | No | No |
+| Tool | Supported | Prompt workflow | Agents | Skills |
+|------|-----------|-----------------|--------|--------|
+| GitHub Copilot | Yes (default) | `.github/prompts/` | `.github/agents/` | `.github/skills/` |
+| Claude Code | Yes | Skills | `.claude/agents/` | `.claude/skills/` |
+| Antigravity | Yes | Skills | Skill-based profile | `.agents/skills/` |
+| Codex | Yes | Skills | `.codex/agents/` | `.agents/skills/` |
+| Kiro | Yes | Skills | `.kiro/agents/` | `.kiro/skills/` |
+
+For tools without vendor-specific prompt files, SWE prompt templates are converted to portable Agent Skills. This preserves their instructions and makes them available as on-demand slash commands where supported.
 
 ## Quick Start
 
-### Using npx (no installation required)
-
 ```bash
 npx swe-copilot-kit init
+npx swe-copilot-kit init --platform claude-code
 ```
 
-### Global Installation
+Or install globally:
 
 ```bash
 npm install -g swe-copilot-kit
-swe-copilot-kit init
-```
-
-Or use the shorter alias:
-
-```bash
-sck init
-```
-
-## What It Does
-
-This CLI toolkit unpacks pre-configured GitHub Copilot prompts and agents into your project's `.github` directory:
-
-```bash
-your-project/
-├── .github/
-│   ├── prompts/
-│   │   └── swe.*.prompt.md
-│   ├── agents/
-│   │   └── swe.*.agent.md
-│   └── skills/
-│       └── swe.*
-│           └── SKILL.md
+sck init --platform codex
 ```
 
 ## Commands
 
 ### `init`
 
-Initialize GitHub Copilot configuration in your project.
+Initialize the templates for one tool. GitHub Copilot is the default.
 
 ```bash
 swe-copilot-kit init [options]
 ```
 
-**Options:**
-
 | Option | Description |
 |--------|-------------|
-| `-f, --force` | Overwrite existing files |
-| `--claude-code` | Initialize for Claude Code _(Coming soon)_ |
-| `--antigravity` | Initialize for Antigravity _(Coming soon)_ |
+| `-f, --force` | Overwrite generated template files in the target layout |
+| `-p, --platform <name>` | `github-copilot`, `claude-code`, `antigravity`, `codex`, or `kiro` |
+| `--claude-code` | Alias for `--platform claude-code` |
+| `--antigravity` | Alias for `--platform antigravity` |
+| `--codex` | Alias for `--platform codex` |
+| `--kiro` | Alias for `--platform kiro` |
 
-**Examples:**
+Examples:
 
 ```bash
-# Initialize everything
-swe-copilot-kit init
+# GitHub Copilot
+sck init
 
-# Force overwrite existing files
-swe-copilot-kit init --force
+# Claude Code
+sck init --claude-code
+
+# Antigravity
+sck init --platform antigravity
+
+# Codex
+sck init --codex
+
+# Kiro, replacing existing generated templates
+sck init --kiro --force
 ```
 
 ### `list`
 
-List available templates.
+List the bundled source templates.
 
 ```bash
-swe-copilot-kit list
+sck list
 ```
+
+## Generated layouts
+
+```text
+# Claude Code
+.claude/
+  agents/swe-coder.md
+  skills/swe-code-review/SKILL.md
+
+# Antigravity
+.agents/
+  skills/swe-code-review/SKILL.md
+
+# Codex
+.codex/
+  agents/swe-coder.toml
+.agents/
+  skills/swe-code-review/SKILL.md
+
+# Kiro
+.kiro/
+  agents/swe-coder.md
+  skills/swe-code-review/SKILL.md
+```
+
+GitHub Copilot retains its established `.github/prompts`, `.github/agents`, and `.github/skills` layout.
 
 ## Included Templates
 
-The package includes a variety of prompts and agents designed to assist with software engineering tasks, such as code committing, code reviewing, and coding assistance.
+The kit contains reusable workflows for commits, code review, code explanation, changelog and table-of-contents updates, and version upgrades. The `swe.code-review` skill includes an evidence-based review process covering correctness, security, reliability, compatibility, and test gaps.
 
 ## Programmatic Usage
 
-You can also use this package programmatically:
-
 ```typescript
-import { copyPrompts, copyAgents, initAll, listTemplates } from 'swe-copilot-kit';
+import { initPlatform, listTemplates } from 'swe-copilot-kit';
 
-// Initialize prompts only
-await copyPrompts({ force: true });
+const result = await initPlatform('claude-code', {
+  targetDir: '/path/to/project',
+  force: true,
+});
 
-// Initialize agents only
-await copyAgents({ targetDir: '/path/to/project' });
+await initPlatform('github-copilot');
 
-// Initialize everything
-const result = await initAll({ force: true });
-
-// List available templates
 const templates = await listTemplates();
-console.log(templates.prompts);
-console.log(templates.agents);
+console.log(templates.skills);
 ```
-
-## Using with GitHub Copilot
-
-After initialization, you can use the prompts and agents with GitHub Copilot:
-
-1. **Prompts**: Reference prompts in Copilot Chat using `/prompt <prompt-name>` to get specific assistance.
-2. **Agents**: Agents provide extended capabilities and workflows for Copilot
 
 ## Customization
 
-After initialization, you can customize the prompts and agents to match your project's needs:
-
-1. Edit the `.github/prompts/swe.*.prompt.md` files to adjust prompt behavior
-2. Modify `.github/agents/swe.*.agent.md` files to change agent capabilities
+Generated files are regular project files. Edit them to match your repository conventions, then commit them if the whole team should share the configuration.
 
 ## Development
-
-### Building from source
 
 ```bash
 git clone https://github.com/tlephan/swe-copilot-kit.git
 cd swe-copilot-kit
 npm install
+npm test
 npm run build
 ```
-
-### Running locally
-
-```bash
-npm run dev -- init
-```
-
-## License
-
-MIT License

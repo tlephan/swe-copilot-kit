@@ -1,7 +1,8 @@
 {
     "name": "swe-copilot-kit",
-    "version": "0.0.3-beta.1",
-    "description": "CLI toolkit to initialize GitHub Copilot prompts and agents in your project",
+    "version": "0.0.4",
+    "description": "CLI toolkit to initialize SWE templates for GitHub Copilot, Claude Code, Antigravity, Codex, and Kiro",
+    "type": "module",
     "main": "dist/index.js",
     "bin": {
         "swe-copilot-kit": "dist/cli.js",
@@ -9,9 +10,9 @@
     },
     "scripts": {
         "build": "tsc",
-        "dev": "ts-node src/cli.ts",
+        "dev": "node --loader ts-node/esm src/cli.ts",
         "prepublishOnly": "npm run build",
-        "test": "jest"
+        "test": "jest --runInBand"
     },
     "files": [
         "dist",
@@ -20,6 +21,10 @@
     "keywords": [
         "github-copilot",
         "copilot",
+        "claude-code",
+        "antigravity",
+        "codex",
+        "kiro",
         "prompts",
         "agents",
         "cli",
@@ -29,19 +34,20 @@
     "author": "",
     "license": "MIT",
     "devDependencies": {
+        "@swc/core": "^1.16.2",
+        "@swc/jest": "^0.2.39",
         "@types/fs-extra": "^11.0.4",
         "@types/jest": "^30.0.0",
-        "@types/node": "^20.10.0",
-        "jest": "^30.2.0",
-        "ts-jest": "^29.4.6",
+        "@types/node": "^26.6.2",
+        "jest": "^30.5.2",
         "ts-node": "^10.9.2",
-        "typescript": "^5.3.0"
+        "typescript": "^7.0.2"
     },
     "dependencies": {
-        "chalk": "^4.1.2",
-        "commander": "^12.0.0",
-        "fs-extra": "^11.2.0",
-        "ora": "^5.4.1"
+        "chalk": "^6.0.0",
+        "commander": "^15.0.0",
+        "fs-extra": "^11.4.0",
+        "ora": "^9.4.1"
     },
     "engines": {
         "node": ">=22.0.0"

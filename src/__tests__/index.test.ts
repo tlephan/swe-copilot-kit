@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll, updateGitignore } from '../index';
+import { getTemplatesDir, listTemplates, copyPrompts, copyAgents, copySkills, initAll, initPlatform, updateGitignore } from '../index.js';
 
 describe('swe-copilot-kit', () => {
     const testDir = path.join(__dirname, '../../test-output');
@@ -63,7 +63,7 @@ describe('swe-copilot-kit', () => {
 
             expect(result.success).toBe(true);
             expect(result.filesCount).toBeGreaterThan(0);
-            expect(result.destination).toContain('.github/prompts');
+            expect(result.destination).toContain(path.join('.github', 'prompts'));
 
             const promptsExist = await fs.pathExists(path.join(testDir, '.github', 'prompts'));
             expect(promptsExist).toBe(true);
@@ -95,7 +95,7 @@ describe('swe-copilot-kit', () => {
 
             expect(result.success).toBe(true);
             expect(result.filesCount).toBeGreaterThanOrEqual(0);
-            expect(result.destination).toContain('.github/agents');
+            expect(result.destination).toContain(path.join('.github', 'agents'));
 
             const agentsExist = await fs.pathExists(path.join(testDir, '.github', 'agents'));
             expect(agentsExist).toBe(true);
@@ -118,7 +118,7 @@ describe('swe-copilot-kit', () => {
 
             expect(result.success).toBe(true);
             expect(result.filesCount).toBeGreaterThanOrEqual(0);
-            expect(result.destination).toContain('.github/skills');
+            expect(result.destination).toContain(path.join('.github', 'skills'));
 
             const skillsExist = await fs.pathExists(path.join(testDir, '.github', 'skills'));
             expect(skillsExist).toBe(true);
@@ -148,6 +148,35 @@ describe('swe-copilot-kit', () => {
             expect(result.prompts.filesCount).toBeGreaterThan(0);
             expect(result.agents.filesCount).toBeGreaterThanOrEqual(0);
             expect(result.skills.filesCount).toBeGreaterThanOrEqual(0);
+        });
+    });
+
+    describe('initPlatform', () => {
+        it.each([
+            ['claude-code', '.claude', 'skills'],
+            ['antigravity', '.agents', 'skills'],
+            ['codex', '.codex', 'agents'],
+            ['kiro', '.kiro', 'agents']
+        ] as const)('should initialize %s templates in its native layout', async (platform, directory, child) => {
+            const result = await initPlatform(platform, { targetDir: testDir });
+
+            expect(result.copies.every(copy => copy.result.success)).toBe(true);
+            expect(await fs.pathExists(path.join(testDir, directory, child))).toBe(true);
+        });
+
+        it('should convert prompts into portable skills for Claude Code', async () => {
+            await initPlatform('claude-code', { targetDir: testDir });
+            const skill = path.join(testDir, '.claude', 'skills', 'swe-code-review', 'SKILL.md');
+
+            expect(await fs.pathExists(skill)).toBe(true);
+            expect(await fs.readFile(skill, 'utf8')).toContain('name: swe-code-review');
+        });
+
+        it('should generate a Codex TOML agent', async () => {
+            await initPlatform('codex', { targetDir: testDir });
+            const agent = path.join(testDir, '.codex', 'agents', 'swe-coder.toml');
+
+            expect(await fs.readFile(agent, 'utf8')).toContain('name = "swe_coder"');
         });
     });
 
